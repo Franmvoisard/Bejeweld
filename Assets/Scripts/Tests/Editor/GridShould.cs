@@ -55,6 +55,30 @@ namespace Tests.Editor
             //When-Then
             Assert.Throws<CellNotFoundException>(() => _grid.Find(emptyCellSlotPosition));
         }
+
+        [Test]
+        public void Remove_A_Cell_That_Exists_By_Its_Grid_Position()
+        {
+            //Given
+            var cellPosition = new Vector2Int(2, 2);
+            _grid.AddCell(new Cell(cellPosition));
+
+            Assert.IsNotNull(_grid.Find(cellPosition));
+            
+            //When
+            _grid.RemoveCell(new Vector2Int(2, 2));
+            
+            //Then
+            Assert.Throws<CellNotFoundException>(() => _grid.Find(cellPosition));
+            Assert.IsEmpty(_grid.GetCells());
+        }
+        
+        [Test]
+        public void Throw_CellNotFoundException_When_RemoveCell_But_No_Cell_At_The_Given_Position()
+        {
+            //When-Then
+            Assert.Throws<CellNotFoundException>(() => _grid.RemoveCell(new Vector2Int(2, 2)));
+        }
     }
 
 }

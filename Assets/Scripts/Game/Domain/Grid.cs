@@ -24,5 +24,11 @@ namespace Shoelace.Bejeweld
         {
             return _cells.Values.ToArray();
         }
+
+        public void RemoveCell(Vector2Int cellPosition)
+        {
+            if (_cells.ContainsKey(cellPosition) == false) throw new CellNotFoundException(cellPosition);
+            _cells.Remove(cellPosition);
+        }
     }
 }
