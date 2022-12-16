@@ -32,6 +32,21 @@ namespace Tests.Editor
         }
 
         [Test]
+        public void Find_A_Cell_Given_A_Position()
+        {
+            //Given
+            var cellPosition = new Vector2Int(2, 2);
+            _grid.AddCell(new Cell(cellPosition));
+            
+            //When
+            var result = _grid.Find(cellPosition);
+            
+            //Then
+            Assert.NotNull(result);
+            Assert.AreEqual(cellPosition, result.GridPosition);
+        }
+        
+        [Test]
         public void Throw_CellNotFoundException_When_Trying_To_Find_A_Non_Existent_Cell()
         {
             //Given
