@@ -32,6 +32,19 @@ namespace Tests.Editor
         }
 
         [Test]
+        public void Add_Cell_To_Grid_Throws_An_Exception_If_Space_Is_Already_Occupied()
+        {
+            var newCellPosition = new Vector2Int(1, 1);
+            var cellToAdd = new Cell(newCellPosition);
+            _grid.AddCell(cellToAdd);
+            
+            Assert.AreEqual(1, _grid.GetCells().Length);
+            
+            //When-Then
+            Assert.Throws<CellAlreadyExistsException>(() => _grid.AddCell(cellToAdd));
+        }
+
+        [Test]
         public void Find_A_Cell_Given_A_Position()
         {
             //Given

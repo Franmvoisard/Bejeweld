@@ -11,6 +11,7 @@ namespace Shoelace.Bejeweld
 
         public void AddCell(Cell cell)
         {
+            if (_cells.ContainsKey(cell.GridPosition)) throw new CellAlreadyExistsException(cell.GridPosition);
             _cells[cell.GridPosition] = cell;
         }
 
@@ -31,4 +32,5 @@ namespace Shoelace.Bejeweld
             _cells.Remove(cellPosition);
         }
     }
+
 }
