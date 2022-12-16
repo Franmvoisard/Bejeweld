@@ -2,6 +2,7 @@ using NUnit.Framework;
 using Shoelace.Bejeweld;
 using Shoelace.Bejeweld.Errors;
 using UnityEngine;
+using Grid = Shoelace.Bejeweld.Grid;
 
 namespace Tests.Editor
 {
@@ -30,6 +31,15 @@ namespace Tests.Editor
             Assert.NotNull(_grid.Find(newCellPosition));
         }
 
+        [Test]
+        public void Throw_CellNotFoundException_When_Trying_To_Find_A_Non_Existent_Cell()
+        {
+            //Given
+            var emptyCellSlotPosition = new Vector2Int(1, 1);
+            
+            //When-Then
+            Assert.Throws<CellNotFoundException>(() => _grid.Find(emptyCellSlotPosition));
+        }
     }
 
 }

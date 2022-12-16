@@ -13,5 +13,16 @@ namespace Shoelace.Bejeweld
         {
             _cells[cell.GridPosition] = cell;
         }
+
+        public Cell Find(Vector2Int cellPosition)
+        {
+            if (_cells.ContainsKey(cellPosition) == false) throw new CellNotFoundException(cellPosition);
+            return _cells[cellPosition];
+        }
+
+        public Cell[] GetCells()
+        {
+            return _cells.Values.ToArray();
+        }
     }
 }
