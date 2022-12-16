@@ -1,36 +1,46 @@
-using System.Collections.Generic;
-using System.Linq;
 using Shoelace.Bejeweld.Errors;
 using UnityEngine;
 
 namespace Shoelace.Bejeweld
 {
-    public class Grid
+    public interface IGrid
     {
-        private readonly Dictionary<Vector2Int, Cell> _cells = new Dictionary<Vector2Int, Cell>();
-
-        public void AddCell(Cell cell)
-        {
-            if (_cells.ContainsKey(cell.GridPosition)) throw new CellAlreadyExistsException(cell.GridPosition);
-            _cells[cell.GridPosition] = cell;
-        }
-
-        public Cell Find(Vector2Int cellPosition)
-        {
-            if (_cells.ContainsKey(cellPosition) == false) throw new CellNotFoundException(cellPosition);
-            return _cells[cellPosition];
-        }
-
-        public Cell[] GetCells()
-        {
-            return _cells.Values.ToArray();
-        }
-
-        public void RemoveCell(Vector2Int cellPosition)
-        {
-            if (_cells.ContainsKey(cellPosition) == false) throw new CellNotFoundException(cellPosition);
-            _cells.Remove(cellPosition);
-        }
+        void AddTile(Tile tile);
+        Tile Find(int x, int y);
+        Tile[,] GetTiles();
+        void RemoveTile(Vector2Int cellPosition);
     }
 
+    public class Grid : IGrid
+    {
+        private readonly Tile[,] _tiles;
+
+        public Grid(int rows, int columns)
+        {
+            _tiles = new Tile[rows, columns];
+        }
+        
+        public void AddTile(Tile tile)
+        {
+            if (_tiles[tile.GridPosition.x, tile.GridPosition.y] != null) throw new TileAlreadyExistsException(tile.GridPosition);
+            _tiles[tile.GridPosition.x, tile.GridPosition.y] = tile;
+        }
+
+        public Tile Find(int x, int y)
+        {
+            if (_tiles[x, y] == null) throw new TileNotFoundException(x,y);
+            return _tiles[x, y];
+        }
+
+        public Tile[,] GetTiles()
+        {
+            return _tiles;
+        }
+
+        public void RemoveTile(Vector2Int cellPosition)
+        {
+            if (_tiles[cellPosition.x, cellPosition.y] == null) throw new TileNotFoundException(cellPosition.x, cellPosition.y);
+            _tiles[cellPosition.x, cellPosition.y] = null;
+        }
+    }
 }

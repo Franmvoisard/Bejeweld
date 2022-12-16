@@ -1,3 +1,4 @@
+using NSubstitute;
 using NUnit.Framework;
 using Shoelace.Bejeweld;
 using Shoelace.Bejeweld.Errors;
@@ -9,88 +10,98 @@ namespace Tests.Editor
     public class GridShould
     {
         private Grid _grid;
+        private const int GridRows = 8;
+        private const int GridColumns = 8;
 
         [SetUp]
         public void Setup()
         {
-            _grid = new Grid();
+            _grid = new Grid(GridRows,GridColumns);
         }
         
         [Test]
-        public void Add_Cell_To_Grid()
+        public void Add_Tile_To_Grid()
         {
             //Given
-            var newCellPosition = new Vector2Int(1, 1);
-            var cellToAdd = new Cell(newCellPosition);
+            var newTilePosition = new Vector2Int(0, 0);
+            var tileToAdd = new Tile(newTilePosition.x, newTilePosition.y);
             
             //When
-            _grid.AddCell(cellToAdd);
+            _grid.AddTile(tileToAdd);
             
             //Then
-            Assert.AreEqual(1,_grid.GetCells().Length);
-            Assert.NotNull(_grid.Find(newCellPosition));
+            Assert.NotNull(_grid.Find(newTilePosition.x, newTilePosition.y));
         }
 
         [Test]
-        public void Add_Cell_To_Grid_Throws_An_Exception_If_Space_Is_Already_Occupied()
+        public void Add_Tile_To_Grid_Throws_An_Exception_If_Space_Is_Already_Occupied()
         {
-            var newCellPosition = new Vector2Int(1, 1);
-            var cellToAdd = new Cell(newCellPosition);
-            _grid.AddCell(cellToAdd);
-            
-            Assert.AreEqual(1, _grid.GetCells().Length);
+            var newTilePosition = new Vector2Int(1, 1);
+            var tileToAdd = new Tile(newTilePosition.x, newTilePosition.y);
+            _grid.AddTile(tileToAdd);
             
             //When-Then
-            Assert.Throws<CellAlreadyExistsException>(() => _grid.AddCell(cellToAdd));
+            Assert.Throws<TileAlreadyExistsException>(() => _grid.AddTile(tileToAdd));
         }
 
         [Test]
-        public void Find_A_Cell_Given_A_Position()
+        public void Find_A_Tile_Given_A_Position()
         {
             //Given
-            var cellPosition = new Vector2Int(2, 2);
-            _grid.AddCell(new Cell(cellPosition));
+            var tilePosition = new Vector2Int(2, 2);
+            _grid.AddTile(new Tile(tilePosition.x, tilePosition.y));
             
             //When
-            var result = _grid.Find(cellPosition);
+            var result = _grid.Find(tilePosition.x, tilePosition.y);
             
             //Then
             Assert.NotNull(result);
-            Assert.AreEqual(cellPosition, result.GridPosition);
+            Assert.AreEqual(tilePosition, result.GridPosition);
         }
         
         [Test]
-        public void Throw_CellNotFoundException_When_Trying_To_Find_A_Non_Existent_Cell()
+        public void Throw_TileNotFoundException_When_Trying_To_Find_A_Non_Existent_Tile()
         {
             //Given
-            var emptyCellSlotPosition = new Vector2Int(1, 1);
+            var emptyTileSlotPosition = new Vector2Int(1, 1);
             
             //When-Then
-            Assert.Throws<CellNotFoundException>(() => _grid.Find(emptyCellSlotPosition));
+            Assert.Throws<TileNotFoundException>(() => _grid.Find(emptyTileSlotPosition.x, emptyTileSlotPosition.y));
         }
 
         [Test]
-        public void Remove_A_Cell_That_Exists_By_Its_Grid_Position()
+        public void Remove_A_Tile_That_Exists_By_Its_Grid_Position()
         {
             //Given
-            var cellPosition = new Vector2Int(2, 2);
-            _grid.AddCell(new Cell(cellPosition));
+            var tilePosition = new Vector2Int(2, 2);
+            _grid.AddTile(new Tile(tilePosition.x, tilePosition.y));
 
-            Assert.IsNotNull(_grid.Find(cellPosition));
+            Assert.IsNotNull(_grid.Find(tilePosition.x, tilePosition.y));
             
             //When
-            _grid.RemoveCell(new Vector2Int(2, 2));
+            _grid.RemoveTile(new Vector2Int(2, 2));
             
             //Then
-            Assert.Throws<CellNotFoundException>(() => _grid.Find(cellPosition));
-            Assert.IsEmpty(_grid.GetCells());
-        }
+            Assert.Throws<TileNotFoundException>(() => _grid.Find(tilePosition.x, tilePosition.y));
+        } 
         
         [Test]
-        public void Throw_CellNotFoundException_When_RemoveCell_But_No_Cell_At_The_Given_Position()
+        public void Throw_TileNotFoundException_When_RemoveTile_But_No_Tile_At_The_Given_Position()
         {
             //When-Then
-            Assert.Throws<CellNotFoundException>(() => _grid.RemoveCell(new Vector2Int(2, 2)));
+            Assert.Throws<TileNotFoundException>(() => _grid.RemoveTile(new Vector2Int(2, 2)));
+        }
+
+        [Test]
+        public void Swap_Adjacent_Tiles()
+        {
+            //Given
+
+            //When
+            //_grid.Swap();
+
+            //Then
+            //Assert.AreEqual();
         }
     }
 
