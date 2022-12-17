@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Text;
 using Debug = UnityEngine.Debug;
 
 namespace Shoelace.Bejeweld
@@ -20,40 +19,48 @@ namespace Shoelace.Bejeweld
             var stopwatch = Stopwatch.StartNew();
             var matches = new List<Match>();
 
-            var strBuilder = new StringBuilder();
+            //var strBuilder = new StringBuilder();
             for (var column = 0; column < _grid.ColumnCount; column++)
             {
                 for (var row = 0; row < _grid.RowCount; row++)
                 {
-                    if (IsEnoughSpaceForHorizontalMatch(row) == false)
-                    {
-                        strBuilder.Append("[ " + tiles[row, column].TypeId + " ]");
-                        strBuilder.Append("[ " + tiles[row + 1, column].TypeId + " ]");
-                        break;
-                    }
-                    
-                    // If (C) + (C+1) + (C+2) == type
-                    // TODO: Continuar, sumar el resultado y avanzar el iterador para compensar.
+                    var currentTypeId = tiles[row, column].TypeId;
+                    if (IsEnoughSpaceForHorizontalMatch(row) == false) break;
+
                     var currentTile = tiles[row, column];
                     var currentPlusOne = tiles[row + 1, column];
                     var currentPlusTwo = tiles[row + 2, column];
-                    strBuilder.Append("[ " + tiles[row, column].TypeId + " ]");
 
-                    if (DoMatchType(currentTile, currentPlusOne, currentPlusTwo))
+                    if (MatchTileType(currentTile, currentPlusOne, currentPlusTwo))
                     {
-                        Debug.Log($"Match: ({row}, {column}), ({row + 1}, {column}), ({row + 2}, {column})");
-                        matches.Add(new Match(currentTile, currentPlusOne, currentPlusTwo));
+                        var match = new Match();
+                        match.Append(currentTile, currentPlusOne, currentPlusTwo);
+                        
+                        var additionalMatches = 0;
+                        for (var i = row + 3; i <_grid.ColumnCount-row; i++)
+                        {
+                            var tile = tiles[row + i, column];
+                            if (tile.TypeId != currentTypeId) break;
+                            
+                            match.Append(tile);
+                            additionalMatches++;
+                        }
+                        matches.Add(match);
+                        row += 2 + additionalMatches;
                     }
                 }
-                strBuilder.Append("\n");
+            }
+
+            foreach (var match in matches)
+            {
+                Debug.Log(match.ToString());
             }
             Debug.Log("Horizontal Look Time: " + stopwatch.Elapsed);
-            Debug.Log(strBuilder.ToString());
             stopwatch.Stop();
             return matches.ToArray();
         }
 
-        private bool DoMatchType(params Tile[] tiles)
+        private bool MatchTileType(params Tile[] tiles)
         {
             var length = tiles.Length;
             var tileType = tiles[0].TypeId;
@@ -62,8 +69,6 @@ namespace Shoelace.Bejeweld
             {
                 if (tiles[i].TypeId != tileType) return false;
             }
-            
-            Debug.Log($"Tiles: ({tiles[0].GridPosition}), ({tiles[1].GridPosition}), ({tiles[2].GridPosition}) Match type: {tileType}");
             return true;
         }
 
