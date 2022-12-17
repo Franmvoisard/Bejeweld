@@ -1,4 +1,3 @@
-using NSubstitute;
 using NUnit.Framework;
 using Shoelace.Bejeweld;
 using Shoelace.Bejeweld.Errors;
@@ -16,7 +15,7 @@ namespace Tests.Editor
         [SetUp]
         public void Setup()
         {
-            _grid = new Grid(GridRows,GridColumns);
+            _grid = new Grid(GridRows, GridColumns);
         }
         
         [Test]
@@ -93,15 +92,75 @@ namespace Tests.Editor
         }
 
         [Test]
-        public void Swap_Adjacent_Tiles()
+        public void Update_Tiles_Grid_Position_When_Swap_Adjacent_Tiles()
         {
             //Given
+            var tileOneStartPosition = new Vector2Int(0, 0);
+            var tileTwoStartPosition = new Vector2Int(1, 0);
 
+            var tileOne = new Tile(0, 0);
+            var tileTwo = new Tile(1, 0);
+            
+           _grid.AddTile(tileOne);
+           _grid.AddTile(tileTwo);
+            
             //When
-            //_grid.Swap();
+            _grid.SwapTiles(tileOne, tileTwo);
 
             //Then
-            //Assert.AreEqual();
+            var tileAtTilePositionOne = _grid.Find(tileOneStartPosition);
+            var tileAtTilePositionTwo = _grid.Find(tileTwoStartPosition);
+
+            Assert.AreEqual(tileOne, tileAtTilePositionTwo);
+            Assert.AreEqual(tileTwo, tileAtTilePositionOne);
+            Assert.AreEqual(tileOneStartPosition, tileTwo.GridPosition);
+            Assert.AreEqual(tileTwoStartPosition, tileOne.GridPosition);
+        }
+        
+        [TestCase(0,0,2,0)]
+        [TestCase(0,0,1,1)]
+        [TestCase(3,3,3,1)]
+        [TestCase(0,0,4,0)]
+        public void Do_Not_Update_Tiles_Grid_Position_When_Swap_NonAdjacent_Tiles(int tileOneStartX, int tileOneStartY,
+            int tileTwoStartX, int tileTwoStartY)
+        {
+            //Given
+            var tileOneStartPosition = new Vector2Int(tileOneStartX, tileOneStartX);
+            var tileTwoStartPosition = new Vector2Int(tileTwoStartX, tileTwoStartY);
+
+            var tileOne = new Tile(tileOneStartX, tileOneStartY);
+            var tileTwo = new Tile(tileTwoStartX, tileTwoStartY);
+            
+            _grid.AddTile(tileOne);
+            _grid.AddTile(tileTwo);
+            
+            //When
+            _grid.SwapTiles(tileOne, tileTwo);
+
+            //Then
+            var tileAtTilePositionOne = _grid.Find(tileOneStartPosition);
+            var tileAtTilePositionTwo = _grid.Find(tileTwoStartPosition);
+            
+            Assert.AreEqual(tileOne, tileAtTilePositionOne, "Tile was swapped but not adjacent");
+            Assert.AreEqual(tileTwo, tileAtTilePositionTwo, "Tile was swapped but not adjacent");
+            Assert.AreEqual(tileOneStartPosition, tileOne.GridPosition);
+            Assert.AreEqual(tileTwoStartPosition, tileTwo.GridPosition);
+        }
+
+        [Test]
+        public void Throw_CannotSwapUnattachedTileException_When_Trying_To_Swap_Tiles_Not_Present_In_The_Grid()
+        {
+            //Given
+            var tileOneStartPosition = new Vector2Int(0, 0);
+            var tileTwoStartPosition = new Vector2Int(2, 0);
+
+            var tileOne = new Tile(0, 0);
+            var tileTwo = new Tile(2, 0);
+            
+            //When-Then
+            Assert.Throws<CannotSwapUnattachedTileException>(() => _grid.SwapTiles(tileOne, tileTwo));
+            Assert.AreEqual(tileOneStartPosition, tileOne.GridPosition);
+            Assert.AreEqual(tileTwoStartPosition, tileTwo.GridPosition);
         }
     }
 
