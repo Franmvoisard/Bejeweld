@@ -8,7 +8,7 @@ namespace Tests.Editor
 {
     public class GridShould
     {
-        private Grid _grid;
+        private IGrid _grid;
         private const int GridRows = 8;
         private const int GridColumns = 8;
 
@@ -194,14 +194,17 @@ namespace Tests.Editor
             _grid.PopulateWithProvidedTiles(testTable);
             
             //Then
+            var iterator = 0;
+            
             for (var i = 0; i < columns; i++)
             {
                 for (var j = 0; j < rows; j++)
                 {
-                    Assert.AreEqual(testTable[j+i],_grid.GetTiles()[j,i].TypeId);
+                    Assert.AreEqual(testTable[iterator],_grid.GetTiles()[j, i].TypeId);
+                    iterator++;
                 }
             }
         }
     }
-
+   
 }

@@ -1,22 +1,9 @@
 using System;
 using Shoelace.Bejeweld.Errors;
 using UnityEngine;
-using Random = System.Random;
 
 namespace Shoelace.Bejeweld
 {
-    public interface IGrid
-    {
-        void AddTile(Tile tile);
-        Tile Find(int x, int y);
-        Tile Find(Vector2Int cellPosition);
-        Tile[,] GetTiles();
-        void RemoveTile(Vector2Int cellPosition);
-        int ColumnCount { get; }
-        int RowCount { get; }
-
-    }
-
     public class Grid : IGrid
     {
         private readonly Tile[,] _tiles;
@@ -101,12 +88,14 @@ namespace Shoelace.Bejeweld
 
         public void PopulateWithProvidedTiles(params int[] orderedTypes)
         {
+            var iterator = 0;
             for (var i = 0; i < ColumnCount; i++)
             {
                 for (var j = 0; j < RowCount; j++)
                 {
-                    var tile = new Tile(j, i, orderedTypes[i + j]);
+                    var tile = new Tile(j, i, orderedTypes[iterator]);
                     AddTile(tile);
+                    iterator++;
                 }
             }
         }
