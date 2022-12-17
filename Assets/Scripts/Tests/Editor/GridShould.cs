@@ -23,7 +23,7 @@ namespace Tests.Editor
         {
             //Given
             var newTilePosition = new Vector2Int(0, 0);
-            var tileToAdd = new Tile(newTilePosition.x, newTilePosition.y);
+            var tileToAdd = new Tile(newTilePosition.x, newTilePosition.y, 0);
             
             //When
             _grid.AddTile(tileToAdd);
@@ -36,7 +36,7 @@ namespace Tests.Editor
         public void Add_Tile_To_Grid_Throws_An_Exception_If_Space_Is_Already_Occupied()
         {
             var newTilePosition = new Vector2Int(1, 1);
-            var tileToAdd = new Tile(newTilePosition.x, newTilePosition.y);
+            var tileToAdd = new Tile(newTilePosition.x, newTilePosition.y, 0);
             _grid.AddTile(tileToAdd);
             
             //When-Then
@@ -48,7 +48,7 @@ namespace Tests.Editor
         {
             //Given
             var tilePosition = new Vector2Int(2, 2);
-            _grid.AddTile(new Tile(tilePosition.x, tilePosition.y));
+            _grid.AddTile(new Tile(tilePosition.x, tilePosition.y, 0));
             
             //When
             var result = _grid.Find(tilePosition.x, tilePosition.y);
@@ -73,7 +73,7 @@ namespace Tests.Editor
         {
             //Given
             var tilePosition = new Vector2Int(2, 2);
-            _grid.AddTile(new Tile(tilePosition.x, tilePosition.y));
+            _grid.AddTile(new Tile(tilePosition.x, tilePosition.y,0));
 
             Assert.IsNotNull(_grid.Find(tilePosition.x, tilePosition.y));
             
@@ -98,8 +98,8 @@ namespace Tests.Editor
             var tileOneStartPosition = new Vector2Int(0, 0);
             var tileTwoStartPosition = new Vector2Int(1, 0);
 
-            var tileOne = new Tile(0, 0);
-            var tileTwo = new Tile(1, 0);
+            var tileOne = new Tile(0, 0,0);
+            var tileTwo = new Tile(1, 0,0);
             
            _grid.AddTile(tileOne);
            _grid.AddTile(tileTwo);
@@ -128,8 +128,8 @@ namespace Tests.Editor
             var tileOneStartPosition = new Vector2Int(tileOneStartX, tileOneStartX);
             var tileTwoStartPosition = new Vector2Int(tileTwoStartX, tileTwoStartY);
 
-            var tileOne = new Tile(tileOneStartX, tileOneStartY);
-            var tileTwo = new Tile(tileTwoStartX, tileTwoStartY);
+            var tileOne = new Tile(tileOneStartX, tileOneStartY,0);
+            var tileTwo = new Tile(tileTwoStartX, tileTwoStartY,0);
             
             _grid.AddTile(tileOne);
             _grid.AddTile(tileTwo);
@@ -154,13 +154,53 @@ namespace Tests.Editor
             var tileOneStartPosition = new Vector2Int(0, 0);
             var tileTwoStartPosition = new Vector2Int(2, 0);
 
-            var tileOne = new Tile(0, 0);
-            var tileTwo = new Tile(2, 0);
+            var tileOne = new Tile(0, 0, 0);
+            var tileTwo = new Tile(2, 0, 0);
             
             //When-Then
             Assert.Throws<CannotSwapUnattachedTileException>(() => _grid.SwapTiles(tileOne, tileTwo));
             Assert.AreEqual(tileOneStartPosition, tileOne.GridPosition);
             Assert.AreEqual(tileTwoStartPosition, tileTwo.GridPosition);
+        }
+        
+        [Test]
+        public void Populate_Grid_With_Random_Tiles()
+        {
+            //When
+            _grid.PopulateWithRandomTiles();
+            
+            //Then
+            Assert.AreEqual(64,_grid.GetTiles().Length);
+        }
+
+        [Test]
+        public void Populate_Grid_With_Provided_Tiles()
+        {
+            //Given
+            const int rows = 5;
+            const int columns = 5;
+            _grid = new Grid(rows, columns);
+            
+            var testTable = new int[]
+            {
+                0, 0, 1, 1, 1,
+                0, 1, 0, 0, 2,
+                2, 3, 0, 2, 1,
+                0, 2, 0, 0, 0,
+                1, 0, 2, 0, 0
+            };
+
+            //When
+            _grid.PopulateWithProvidedTiles(testTable);
+            
+            //Then
+            for (var i = 0; i < columns; i++)
+            {
+                for (var j = 0; j < rows; j++)
+                {
+                    Assert.AreEqual(testTable[j+i],_grid.GetTiles()[j,i].TypeId);
+                }
+            }
         }
     }
 

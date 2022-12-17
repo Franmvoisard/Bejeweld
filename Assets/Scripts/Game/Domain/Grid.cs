@@ -1,6 +1,7 @@
 using System;
 using Shoelace.Bejeweld.Errors;
 using UnityEngine;
+using Random = System.Random;
 
 namespace Shoelace.Bejeweld
 {
@@ -11,15 +12,21 @@ namespace Shoelace.Bejeweld
         Tile Find(Vector2Int cellPosition);
         Tile[,] GetTiles();
         void RemoveTile(Vector2Int cellPosition);
+        int ColumnCount { get; }
+        int RowCount { get; }
 
     }
 
     public class Grid : IGrid
     {
         private readonly Tile[,] _tiles;
+        public int ColumnCount { get; }
+        public int RowCount { get; }
 
         public Grid(int rows, int columns)
         {
+            RowCount = rows;
+            ColumnCount = columns;
             _tiles = new Tile[rows, columns];
         }
         
@@ -85,6 +92,39 @@ namespace Shoelace.Bejeweld
         private bool AreAdjacent(Tile tileOne, Tile tileTwo)
         {
             return Math.Abs(Vector2Int.Distance(tileOne.GridPosition, tileTwo.GridPosition) - 1) < 0.00001f;
+        }
+
+        public void PopulateWithRandomTiles()
+        {
+            DoForColumnsAndRows(AddRandomTile);
+        }
+
+        public void PopulateWithProvidedTiles(params int[] orderedTypes)
+        {
+            for (var i = 0; i < ColumnCount; i++)
+            {
+                for (var j = 0; j < RowCount; j++)
+                {
+                    var tile = new Tile(j, i, orderedTypes[i + j]);
+                    AddTile(tile);
+                }
+            }
+        }
+
+        private void AddRandomTile(int column, int row)  
+        {
+            AddTile(new Tile(row, column, UnityEngine.Random.Range(0,5)));
+        }
+
+        private void DoForColumnsAndRows(Action<int, int> action)
+        {
+            for (var columns = 0; columns < ColumnCount; columns++)
+            {
+                for (var rows = 0; rows < RowCount; rows++)
+                {
+                    action(columns, rows);
+                }
+            }
         }
     }
 }
