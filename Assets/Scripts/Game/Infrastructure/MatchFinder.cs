@@ -16,11 +16,7 @@ namespace Shoelace.Bejeweld
 
         public Match[] LookForMatches()
         {
-            var tiles = _grid.GetTiles();
-          
-            var matches = new List<Match>();
-            var horizontalMatches = FindHorizontalMatches();
-            matches = matches.Concat(horizontalMatches).ToList();
+            var matches = FindHorizontalMatches().Concat(FindVerticalMatches()).ToList();
             return matches.ToArray();
         }
 
@@ -94,16 +90,11 @@ namespace Shoelace.Bejeweld
                         match.Append(currentTile, currentPlusOne, currentPlusTwo);
 
                         var additionalMatches = 0;
-                        //Iterar sobre los elementos que restan de la columna a partir del match
-                        //El iterador no debe superar los límites de las cantidad de filas.
-                        
+
                         for (var i = column + 3; i < _grid.RowCount; i++)
                         {
-                            Debug.Log($"Looking for extra matches for {currentTile.GridPosition}");
                             var tile = tiles[row, i];
-
                             if (tile.TypeId != currentTypeId) break;
-                            Debug.Log($"Added extra match at {tile.GridPosition}");
                             match.Append(tile);
                             additionalMatches++;
                         }
