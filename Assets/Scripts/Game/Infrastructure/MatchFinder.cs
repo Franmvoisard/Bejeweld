@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using Debug = UnityEngine.Debug;
 
 namespace Shoelace.Bejeweld
@@ -16,10 +17,18 @@ namespace Shoelace.Bejeweld
         public Match[] LookForMatches()
         {
             var tiles = _grid.GetTiles();
-            var stopwatch = Stopwatch.StartNew();
+          
             var matches = new List<Match>();
+            var horizontalMatches = FindHorizontalMatches();
+            matches = matches.Concat(horizontalMatches).ToList();
+            return matches.ToArray();
+        }
 
-            //var strBuilder = new StringBuilder();
+        public List<Match> FindHorizontalMatches()
+        {
+            var matches = new List<Match>();
+            var tiles = _grid.GetTiles();
+            var stopwatch = Stopwatch.StartNew();
             for (var column = 0; column < _grid.ColumnCount; column++)
             {
                 for (var row = 0; row < _grid.RowCount; row++)
@@ -35,16 +44,17 @@ namespace Shoelace.Bejeweld
                     {
                         var match = new Match();
                         match.Append(currentTile, currentPlusOne, currentPlusTwo);
-                        
+
                         var additionalMatches = 0;
-                        for (var i = row + 3; i <_grid.ColumnCount-row; i++)
+                        for (var i = row + 3; i < _grid.ColumnCount; i++)
                         {
-                            var tile = tiles[row + i, column];
+                            var tile = tiles[i, column];
                             if (tile.TypeId != currentTypeId) break;
-                            
+
                             match.Append(tile);
                             additionalMatches++;
                         }
+
                         matches.Add(match);
                         row += 2 + additionalMatches;
                     }
@@ -55,9 +65,63 @@ namespace Shoelace.Bejeweld
             {
                 Debug.Log(match.ToString());
             }
+
             Debug.Log("Horizontal Look Time: " + stopwatch.Elapsed);
             stopwatch.Stop();
-            return matches.ToArray();
+            return matches;
+        }
+
+        public List<Match> FindVerticalMatches()
+        {
+            var matches = new List<Match>();
+            var tiles = _grid.GetTiles();
+            var stopwatch = Stopwatch.StartNew();
+            
+            for (var row = 0; row < _grid.RowCount; row++)
+            {
+                for (var column = 0; column < _grid.ColumnCount; column++)
+                {
+                    var currentTypeId = tiles[row, column].TypeId;
+                    if (IsEnoughSpaceForVerticalMatch(column) == false) break;
+
+                    var currentTile = tiles[row, column];
+                    var currentPlusOne = tiles[row, column + 1];
+                    var currentPlusTwo = tiles[row, column + 2];
+
+                    if (MatchTileType(currentTile, currentPlusOne, currentPlusTwo))
+                    {
+                        var match = new Match();
+                        match.Append(currentTile, currentPlusOne, currentPlusTwo);
+
+                        var additionalMatches = 0;
+                        //Iterar sobre los elementos que restan de la columna a partir del match
+                        //El iterador no debe superar los límites de las cantidad de filas.
+                        
+                        for (var i = column + 3; i < _grid.RowCount; i++)
+                        {
+                            Debug.Log($"Looking for extra matches for {currentTile.GridPosition}");
+                            var tile = tiles[row, i];
+
+                            if (tile.TypeId != currentTypeId) break;
+                            Debug.Log($"Added extra match at {tile.GridPosition}");
+                            match.Append(tile);
+                            additionalMatches++;
+                        }
+
+                        matches.Add(match);
+                        column += 2 + additionalMatches;
+                    }
+                }
+            }
+
+            foreach (var match in matches)
+            {
+                Debug.Log(match.ToString());
+            }
+
+            Debug.Log("Vertical Look Time: " + stopwatch.Elapsed);
+            stopwatch.Stop();
+            return matches;
         }
 
         private bool MatchTileType(params Tile[] tiles)
@@ -75,6 +139,11 @@ namespace Shoelace.Bejeweld
         private bool IsEnoughSpaceForHorizontalMatch(int row)
         {
             return row + 2 < _grid.ColumnCount;
+        }
+
+        private bool IsEnoughSpaceForVerticalMatch(int column)
+        {
+            return column + 2 < _grid.RowCount;
         }
     }
 }
