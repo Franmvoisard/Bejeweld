@@ -217,6 +217,7 @@ GameObject:
   m_Component:
   - component: {fileID: 843596103}
   - component: {fileID: 843596104}
+  - component: {fileID: 843596105}
   m_Layer: 5
   m_Name: Board
   m_TagString: Untagged
@@ -258,10 +259,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   tileParent: {fileID: 843596103}
   gridSize: {x: 8, y: 8}
-  tileViewFactory: {fileID: 11400000, guid: 2d81f79d238804a5292e8ff81547dbac, type: 2}
   tileSize: 100
   tileSpacing: 10
-  tileParentRect: {fileID: 843596103}
+  tileViewFactory: {fileID: 11400000, guid: 2d81f79d238804a5292e8ff81547dbac, type: 2}
+--- !u!114 &843596105
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 843596102}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8278444a151b42b98a062a6b0cd34ff7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gridView: {fileID: 843596104}
 --- !u!1 &913106405
 GameObject:
   m_ObjectHideFlags: 0

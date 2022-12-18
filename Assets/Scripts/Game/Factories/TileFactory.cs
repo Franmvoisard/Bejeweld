@@ -15,6 +15,7 @@ namespace Shoelace.Bejeweld.Factories
             var settings = tileViewSettings[tile.TypeId];
             var tileView = Object.Instantiate(settings.prefab);
             tileView.GetComponent<Image>().color = settings.color;
+            tileView.SetTile(tile);
             return tileView;
         }
     }
