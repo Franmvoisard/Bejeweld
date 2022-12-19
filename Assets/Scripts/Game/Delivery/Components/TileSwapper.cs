@@ -16,7 +16,7 @@ namespace Shoelace.Bejeweld.Components
         {
             TileSelector.OnTileSelected += OnTileSelected;
         }
-        
+
         private void OnTileSelected(TileView tileView, SelectionType type)
         {
             if (gridView.CurrentState != GridState.Interactable) return;

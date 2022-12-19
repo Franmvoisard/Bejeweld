@@ -1,4 +1,6 @@
+//#define LOGGING
 using System;
+using System.Collections.Generic;
 using Shoelace.Bejeweld.Errors;
 using UnityEngine;
 
@@ -100,6 +102,44 @@ namespace Shoelace.Bejeweld
             return emptyPositions.ToArray();
         }
 
+        public void DropTiles()
+        {
+            #if LOGGING
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
+            #endif
+            for (var columns = ColumnCount - 1; columns >= 0; columns--) 
+            {
+                for (var rows = 0; rows < RowCount; rows++)
+                {
+                    #if LOGGING                    
+                    Debug.Log($"({rows}, {columns})");
+                    #endif
+
+                    if (_tiles[rows, columns] != null) continue;
+                    
+                    var columnIndex = columns;
+                    while (columnIndex > 0 && _tiles[rows, columnIndex] == null)
+                    {
+                        columnIndex -= 1;
+                    }
+
+                    if (columnIndex == 0 && _tiles[rows, columnIndex] == null) continue;
+                    _tiles[rows, columns] = _tiles[rows, columnIndex];
+                    _tiles[rows, columns].GridPosition = new Vector2Int(rows, columns);
+                    _tiles[rows, columnIndex] = null;
+                }
+            }
+            #if LOGGING
+            Debug.Log("Dropping tiles: " + stopwatch.Elapsed);
+            stopwatch.Stop();
+            #endif
+        }
+        private void Fall(Tile tile)
+        {
+            _tiles[tile.GridPosition.x, tile.GridPosition.y + 1] = tile;
+            tile.GridPosition = new Vector2Int(tile.GridPosition.x, tile.GridPosition.y + 1);
+        }
         public void PopulateWithProvidedTiles(params int[] orderedTypes)
         {
             var iterator = 0;

@@ -1,5 +1,8 @@
-using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using Shoelace.Bejeweld.Factories;
+using Shoelace.Bejeweld.Views;
 using UnityEngine;
 
 namespace Shoelace.Bejeweld.Components
@@ -14,25 +17,27 @@ namespace Shoelace.Bejeweld.Components
         
         [Header("Tile Settings")]
         [SerializeField] private AbstractTileViewFactory tileViewFactory;
+        
         private IGrid _grid;
-
+        private IMatchFinder _matchFinder;
+        private Dictionary<Vector2Int, TileView> _tileViews = new Dictionary<Vector2Int, TileView>();
         public GridState CurrentState;
 
         private void Start()
         {
             _grid = new Grid(gridSize.x, gridSize.y);
+            _matchFinder = new MatchFinder(_grid);
             _grid.PopulateWithRandomTiles();
-            TileSwapper.OnSwapFinished += OnSwapFinished;
-
             CreateLayout();
+            
+            TileSwapper.OnSwapFinished += OnSwapFinished;
         }
 
         private void OnSwapStarted() => CurrentState = GridState.Swapping;
-        private void OnSwapFinished() => CurrentState = GridState.Interactable;
-
-        private void OnDestroy()
+        private void OnSwapFinished()
         {
-            TileSwapper.OnSwapFinished -= OnSwapFinished;
+            ClearMatches();
+            CurrentState = GridState.Interactable;
         }
 
         public void CreateLayout()
@@ -46,6 +51,7 @@ namespace Shoelace.Bejeweld.Components
 
                     tileView.transform.SetParent(tileParent, false);
                     tilePositionRect.anchoredPosition = CalculateTilePosition(row, column);
+                    _tileViews[tileView.Tile.GridPosition] = tileView;
                 }
             }
         }
@@ -59,6 +65,21 @@ namespace Shoelace.Bejeweld.Components
         {
             CurrentState = GridState.Swapping;
            _grid.SwapTiles(tileA, tileB);
+        }
+
+        private void ClearMatches()
+        {
+            var matches = _matchFinder.LookForMatches().SelectMany(x => x.Tiles).ToArray();
+            for (var i = 0; i < matches.Length; i++)
+            {
+                var tileView = _tileViews[matches[i].GridPosition];
+                _tileViews[matches[i].GridPosition] = null;
+                Destroy(tileView.gameObject);
+            }
+        }
+        private void OnDestroy()
+        {
+            TileSwapper.OnSwapFinished -= OnSwapFinished;
         }
     }
 

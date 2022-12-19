@@ -239,12 +239,7 @@ namespace Tests.Editor
             _grid = new Grid(rows,columns);
 
             var expectedEmptySpaces = new Vector2Int[emptySpaces.Length/2];
-            for (int i = 0; i < emptySpaces.Length; i += 2)
-            {
-                var index = i/2;
-                expectedEmptySpaces[index] = new Vector2Int(emptySpaces[i], emptySpaces[i+1]);
-            }
-            
+            CreateVector2IntFromPositionsInAnIntArray(emptySpaces, expectedEmptySpaces);
             _grid.PopulateWithProvidedTiles(grid);
             
             //Remove last row
@@ -255,6 +250,97 @@ namespace Tests.Editor
 
             //Then
             Assert.AreEqual(expectedEmptySpaces,result);
+        }
+
+        [TestCase(5, 5, new[]
+        {
+            0, 0, 1, 1, 1,
+            0, 1, 0, 0, 2,
+            2, 3, 0, 2, 1,
+            0, 2, 0, 1, 0,
+            1, 0, 2, 0, 0
+        }, new int[]
+        {
+            //Matches
+            2,0, 3,0, 4,0, 
+            2,1, 2,2, 2,3
+        }, new[] {
+            
+            0, 0,-1,-1,-1,
+            0, 1,-1, 0, 2,
+            2, 3,-1, 2, 1,
+            0, 2,-1, 1, 0,
+            1, 0, 2, 0, 0
+        })]
+        [TestCase(5, 5, new[]
+        {
+            0, 0, 1, 1, 1,
+            0, 1, 0, 0, 2,
+            2, 3, 0, 2, 1,
+            0, 2, 0, 0, 0,
+            1, 0, 2, 0, 0 
+        }, new int[] { 0,4, 1,4, 2,4, 3,4, 4,4 },  new[] {
+            -1,-1,-1,-1,-1,
+            0, 0, 1, 1, 1,
+            0, 1, 0, 0, 2,
+            2, 3, 0, 2, 1,
+            0, 2, 0, 0, 0,
+        })]
+        [TestCase(5, 5, new[]
+        {
+            1, 1, 1, 1, 1,
+            0, 1, 0, 0, 2,
+            2, 3, 0, 2, 1,
+            0, 2, 0, 0, 0,
+            1, 0, 2, 0, 0 
+        }, new int[]
+        {
+            0,0, 1,0, 2,0, 3,0, 4,0,
+            2,1, 2,2, 2,3, 3,3, 4,3
+        },  new[] {
+            -1, -1, -1, -1, -1,
+            0, 1, -1, -1, -1,
+            2, 3, -1, 0, 2,
+            0, 2, -1, 2, 1,
+            1, 0, 2, 0, 0 
+        })]
+        public void Drop_Tiles_To_Fill_Empty_Places(int rows, int columns, int[] grid, int[] spacesPositions, int[] expectedTable)
+        {
+            //Given
+            _grid = new Grid(rows, columns);
+
+            var spacesToRemove = new Vector2Int[spacesPositions.Length/2];
+            CreateVector2IntFromPositionsInAnIntArray(spacesPositions, spacesToRemove);
+            _grid.PopulateWithProvidedTiles(grid);
+            foreach (var space in spacesToRemove) _grid.RemoveTile(space);
+            
+            //When
+            _grid.DropTiles();
+            
+            //Then
+            var iterator = 0;
+            for (var i = 0; i < columns; i++)
+            {
+                for (var j = 0; j < rows; j++)
+                {
+                    var tile = _grid.GetTiles()[j,i];
+                    if(tile == null) Assert.AreEqual(-1, expectedTable[iterator]);
+                    else
+                    {
+                        Assert.AreEqual(expectedTable[iterator], tile.TypeId);
+                    }
+                    iterator++;
+                }
+            }
+        }
+
+        private static void CreateVector2IntFromPositionsInAnIntArray(int[] emptySpaces, Vector2Int[] expectedEmptySpaces)
+        {
+            for (int i = 0; i < emptySpaces.Length; i += 2)
+            {
+                var index = i / 2;
+                expectedEmptySpaces[index] = new Vector2Int(emptySpaces[i], emptySpaces[i + 1]);
+            }
         }
     }
    
