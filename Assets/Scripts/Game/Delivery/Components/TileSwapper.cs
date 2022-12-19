@@ -10,7 +10,7 @@ namespace Shoelace.Bejeweld.Components
         [SerializeField] private GridView gridView;
         [SerializeField] private float timeToSwap = 0.25f;
         
-        public static event Action OnSwapFinished;
+        public static event Action<TileView,TileView> OnSwapFinished;
 
         private void Awake()
         {
@@ -31,7 +31,7 @@ namespace Shoelace.Bejeweld.Components
             }
             else
             {
-                if (type != SelectionType.Click && TileSelector.SelectedTile == tileView) return;
+                if (TileSelector.SelectedTile == tileView) return;
                 StartCoroutine(DoSwap(TileSelector.SelectedTile, tileView));
             }
         }
@@ -39,6 +39,9 @@ namespace Shoelace.Bejeweld.Components
         private IEnumerator DoSwap(TileView tileA, TileView tileB)
         {
             gridView.Swap(tileA.Tile, tileB.Tile);
+            var auxTile = tileA.Tile;
+            tileA.SetTile(tileB.Tile);
+            tileB.SetTile(auxTile);
             TileSelector.SelectedTile = null;
             var tileAStartPosition = tileA.transform.position;
             var tileBStartPosition = tileB.transform.position;
@@ -52,7 +55,7 @@ namespace Shoelace.Bejeweld.Components
                 yield return null;
             }
 
-            OnSwapFinished?.Invoke();
+            OnSwapFinished?.Invoke(tileA, tileB);
         }
     }
 }

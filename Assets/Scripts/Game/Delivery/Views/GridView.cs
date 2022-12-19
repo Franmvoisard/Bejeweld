@@ -1,11 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Shoelace.Bejeweld.Components;
 using Shoelace.Bejeweld.Factories;
-using Shoelace.Bejeweld.Views;
 using UnityEngine;
+using UnityEngine.UIElements.Experimental;
 
-namespace Shoelace.Bejeweld.Components
+namespace Shoelace.Bejeweld.Views
 {
     public class GridView : MonoBehaviour
     {
@@ -20,7 +21,7 @@ namespace Shoelace.Bejeweld.Components
         
         private IGrid _grid;
         private IMatchFinder _matchFinder;
-        private Dictionary<Vector2Int, TileView> _tileViews = new Dictionary<Vector2Int, TileView>();
+        private readonly Dictionary<Vector2Int, TileView> _tileViews = new Dictionary<Vector2Int, TileView>();
         public GridState CurrentState;
 
         private void Start()
@@ -29,13 +30,14 @@ namespace Shoelace.Bejeweld.Components
             _matchFinder = new MatchFinder(_grid);
             _grid.PopulateWithRandomTiles();
             CreateLayout();
-            
             TileSwapper.OnSwapFinished += OnSwapFinished;
         }
 
         private void OnSwapStarted() => CurrentState = GridState.Swapping;
-        private void OnSwapFinished()
+        private void OnSwapFinished(TileView tileA, TileView tileB)
         {
+            _tileViews[tileA.Tile.GridPosition] = tileB;
+            _tileViews[tileB.Tile.GridPosition] = tileA;
             ClearMatches();
             CurrentState = GridState.Interactable;
         }
@@ -64,17 +66,43 @@ namespace Shoelace.Bejeweld.Components
         public void Swap(Tile tileA, Tile tileB)
         {
             CurrentState = GridState.Swapping;
-           _grid.SwapTiles(tileA, tileB);
+            _grid.SwapTiles(tileA, tileB);
         }
 
         private void ClearMatches()
         {
-            var matches = _matchFinder.LookForMatches().SelectMany(x => x.Tiles).ToArray();
+            var matches = _matchFinder.LookForMatches().SelectMany(x => x.Tiles).Distinct().ToArray();
             for (var i = 0; i < matches.Length; i++)
             {
-                var tileView = _tileViews[matches[i].GridPosition];
-                _tileViews[matches[i].GridPosition] = null;
+                var gridPosition = matches[i].GridPosition;
+                Debug.Log(gridPosition);
+
+                var tileView = _tileViews[gridPosition];
+                _tileViews.Remove(gridPosition);
+                _grid.RemoveTile(gridPosition);
                 Destroy(tileView.gameObject);
+            }
+
+            var displacedTiles = _grid.DropTiles();
+            StartCoroutine(DropTiles(displacedTiles));
+        }
+
+        private IEnumerator DropTiles(Drop[] drops)
+        {
+            var time = 0f;
+            while (time < 0.8f)
+            {
+                time += Time.deltaTime;
+                var finalPositions = drops.Select(drop => CalculateTilePosition(drop.NewPosition.x, drop.NewPosition.y)).ToArray();
+                var viewTransforms = drops.Select(drop => _tileViews[drop.PreviousPosition])
+                    .Select(x => x.GetComponent<RectTransform>()).ToArray();
+                var easedTime = Easing.InOutQuad(time / 0.8f);
+                for (var i = 0; i < drops.Length; i++)
+                {
+                    viewTransforms[i].anchoredPosition = Vector3.Lerp(viewTransforms[i].anchoredPosition, finalPositions[i], easedTime);
+                }
+             
+                yield return new WaitForEndOfFrame();
             }
         }
         private void OnDestroy()

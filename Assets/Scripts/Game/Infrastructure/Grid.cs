@@ -102,8 +102,9 @@ namespace Shoelace.Bejeweld
             return emptyPositions.ToArray();
         }
 
-        public void DropTiles()
+        public Drop[] DropTiles()
         {
+            var movedTiles = new List<Drop>();
             #if LOGGING
             var stopwatch = new Stopwatch();
             stopwatch.Start();
@@ -126,19 +127,17 @@ namespace Shoelace.Bejeweld
 
                     if (columnIndex == 0 && _tiles[rows, columnIndex] == null) continue;
                     _tiles[rows, columns] = _tiles[rows, columnIndex];
+                    movedTiles.Add(new Drop( new Vector2Int(rows, columnIndex),new Vector2Int(rows, columns)));
                     _tiles[rows, columns].GridPosition = new Vector2Int(rows, columns);
                     _tiles[rows, columnIndex] = null;
                 }
             }
-            #if LOGGING
+
+            return movedTiles.ToArray();
+#if LOGGING
             Debug.Log("Dropping tiles: " + stopwatch.Elapsed);
             stopwatch.Stop();
-            #endif
-        }
-        private void Fall(Tile tile)
-        {
-            _tiles[tile.GridPosition.x, tile.GridPosition.y + 1] = tile;
-            tile.GridPosition = new Vector2Int(tile.GridPosition.x, tile.GridPosition.y + 1);
+#endif
         }
         public void PopulateWithProvidedTiles(params int[] orderedTypes)
         {
@@ -168,6 +167,18 @@ namespace Shoelace.Bejeweld
                     action(columns, rows);
                 }
             }
+        }
+    }
+
+    public struct Drop
+    {
+        public Vector2Int PreviousPosition;
+        public Vector2Int NewPosition;
+
+        public Drop(Vector2Int previousPosition, Vector2Int newPosition)
+        {
+            PreviousPosition = previousPosition;
+            NewPosition = newPosition;
         }
     }
 }
