@@ -15,5 +15,6 @@ namespace Shoelace.Bejeweld
         void SwapTiles(Tile tileOne, Tile tileTwo);
         void PopulateWithProvidedTiles(params int[] orderedTypes);
         void PopulateWithRandomTiles();
+        Vector2Int[] GetEmptyPositions();
     }
 }

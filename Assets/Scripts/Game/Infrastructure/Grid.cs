@@ -85,6 +85,20 @@ namespace Shoelace.Bejeweld
         {
             DoForColumnsAndRows(AddRandomTile);
         }
+        
+        public Vector2Int[] GetEmptyPositions()
+        {
+            List<Vector2Int> emptyPositions = new List<Vector2Int>();
+            for (int column = 0; column < ColumnCount; column++)
+            {
+                for (int row = 0; row < RowCount; row++)
+                {
+                    if (_tiles[row, column] == null) emptyPositions.Add(new Vector2Int(row,column));
+                }
+            }
+
+            return emptyPositions.ToArray();
+        }
 
         public void PopulateWithProvidedTiles(params int[] orderedTypes)
         {
