@@ -1,3 +1,4 @@
+//#define LOGGING
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -56,7 +57,7 @@ namespace Shoelace.Bejeweld
                     }
                 }
             }
-
+           #if LOGGING
             foreach (var match in matches)
             {
                 Debug.Log(match.ToString());
@@ -64,6 +65,7 @@ namespace Shoelace.Bejeweld
 
             Debug.Log("Horizontal Look Time: " + stopwatch.Elapsed);
             stopwatch.Stop();
+            #endif
             return matches;
         }
 
@@ -104,7 +106,7 @@ namespace Shoelace.Bejeweld
                     }
                 }
             }
-
+#if LOGGING
             foreach (var match in matches)
             {
                 Debug.Log(match.ToString());
@@ -112,6 +114,7 @@ namespace Shoelace.Bejeweld
 
             Debug.Log("Vertical Look Time: " + stopwatch.Elapsed);
             stopwatch.Stop();
+#endif
             return matches;
         }
 
