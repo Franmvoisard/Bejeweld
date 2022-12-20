@@ -38,10 +38,10 @@ namespace Shoelace.Bejeweld.Components
 
         private IEnumerator DoSwap(TileView tileA, TileView tileB)
         {
-            gridView.Swap(tileA.Tile, tileB.Tile);
-            var auxTile = tileA.Tile;
-            tileA.SetTile(tileB.Tile);
-            tileB.SetTile(auxTile);
+            gridView.Swap(tileA, tileB);
+            //var auxTile = tileA.Tile;
+            //tileA.SetTile(tileB.Tile);
+            //tileB.SetTile(auxTile);
             TileSelector.SelectedTile = null;
             var tileAStartPosition = tileA.transform.position;
             var tileBStartPosition = tileB.transform.position;

@@ -7,10 +7,11 @@ namespace Shoelace.Bejeweld.Views
     public class TileView : MonoBehaviour, IPointerDownHandler, IPointerEnterHandler
     {
         public Tile Tile { get; private set; }
-
+        
         public void SetTile(Tile tile)
         {
             Tile = tile;
+            gameObject.name = tile.GridPosition.ToString();
         }
 
         public void OnPointerDown(PointerEventData eventData)

@@ -87,19 +87,48 @@ namespace Shoelace.Bejeweld
         {
             DoForColumnsAndRows(AddRandomTile);
         }
-        
+
+        public void PopulateWithProvidedTiles(params int[] orderedTypes)
+        {
+            var iterator = 0;
+            for (var i = 0; i < ColumnCount; i++)
+            {
+                for (var j = 0; j < RowCount; j++)
+                {
+                    var tile = new Tile(j, i, orderedTypes[iterator]);
+                    AddTile(tile);
+                    iterator++;
+                }
+            }
+        }
+
         public Vector2Int[] GetEmptyPositions()
         {
-            List<Vector2Int> emptyPositions = new List<Vector2Int>();
-            for (int column = 0; column < ColumnCount; column++)
+            var emptyPositions = new List<Vector2Int>();
+            for (var column = 0; column < ColumnCount; column++)
             {
-                for (int row = 0; row < RowCount; row++)
+                for (var row = 0; row < RowCount; row++)
                 {
                     if (_tiles[row, column] == null) emptyPositions.Add(new Vector2Int(row,column));
                 }
             }
 
             return emptyPositions.ToArray();
+        }
+
+        public Tile[] PopulateEmptyTiles()
+        {
+            var emptyPositions = GetEmptyPositions();
+            var addedTiles = new Tile[emptyPositions.Length];
+            
+            for (var i = 0; i < emptyPositions.Length; i++)
+            {
+                var emptyPosition = emptyPositions[i];
+                var tile = AddRandomTile(emptyPosition);
+                addedTiles[i] = tile;
+            }
+
+            return addedTiles;
         }
 
         public Drop[] DropTiles()
@@ -139,18 +168,12 @@ namespace Shoelace.Bejeweld
             stopwatch.Stop();
 #endif
         }
-        public void PopulateWithProvidedTiles(params int[] orderedTypes)
+
+        private Tile AddRandomTile(Vector2Int emptyPosition)
         {
-            var iterator = 0;
-            for (var i = 0; i < ColumnCount; i++)
-            {
-                for (var j = 0; j < RowCount; j++)
-                {
-                    var tile = new Tile(j, i, orderedTypes[iterator]);
-                    AddTile(tile);
-                    iterator++;
-                }
-            }
+            var tile = new Tile(emptyPosition.x, emptyPosition.y, UnityEngine.Random.Range(0,5));
+            AddTile(tile);
+            return tile;
         }
 
         private void AddRandomTile(int column, int row)  

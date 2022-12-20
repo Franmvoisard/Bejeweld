@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Shoelace.Bejeweld
@@ -16,5 +17,6 @@ namespace Shoelace.Bejeweld
         void PopulateWithRandomTiles();
         Drop[] DropTiles();
         Vector2Int[] GetEmptyPositions();
+        Tile[] PopulateEmptyTiles();
     }
 }

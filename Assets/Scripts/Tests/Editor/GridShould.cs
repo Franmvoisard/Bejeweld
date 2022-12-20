@@ -334,6 +334,44 @@ namespace Tests.Editor
             }
         }
 
+        [TestCase(5, 5, new[]
+        {
+            1, 1, 1, 1, 1,
+            0, 1, 0, 0, 2,
+            2, 3, 0, 2, 1,
+            0, 2, 0, 0, 0,
+            1, 0, 2, 0, 0 
+        }, new int[]
+        {
+            0,0, 1,0, 2,0, 3,0, 4,0,
+            2,1, 2,2, 2,3, 3,3, 4,3
+        })]
+        public void Fill_Empty_Gaps(int rows, int columns, int[] grid, int[] spacesPositions)
+        {
+            //Given
+            _grid = new Grid(rows, columns);
+
+            var spacesToRemove = new Vector2Int[spacesPositions.Length/2];
+            CreateVector2IntFromPositionsInAnIntArray(spacesPositions, spacesToRemove);
+            _grid.PopulateWithProvidedTiles(grid);
+            
+            foreach (var space in spacesToRemove) _grid.RemoveTile(space);
+            _grid.DropTiles();
+            
+            //When
+            _grid.PopulateEmptyTiles();
+            
+            //Then
+            var tiles = _grid.GetTiles();
+            for (var i = 0; i < columns; i++)
+            {
+                for (var j = 0; j < rows; j++)
+                {
+                    Assert.NotNull(tiles[j,i]);
+                }
+            }
+        }
+        
         private static void CreateVector2IntFromPositionsInAnIntArray(int[] emptySpaces, Vector2Int[] expectedEmptySpaces)
         {
             for (int i = 0; i < emptySpaces.Length; i += 2)
