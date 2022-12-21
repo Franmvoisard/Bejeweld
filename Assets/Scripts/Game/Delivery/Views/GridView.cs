@@ -5,6 +5,7 @@ using System.Linq;
 using Shoelace.Bejeweld.Components;
 using Shoelace.Bejeweld.Factories;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.UIElements.Experimental;
 using Random = UnityEngine.Random;
 
@@ -21,7 +22,8 @@ namespace Shoelace.Bejeweld.Views
         [Header("Tile Settings")]
         [SerializeField] private AbstractTileViewFactory tileViewFactory;
         [SerializeField] private float timeToFall = 0.5f;
-
+        [SerializeField] private Material flashingMaterial;
+        
         private IGrid _grid;
         private readonly Dictionary<Vector2Int, TileView> _tileViews = new();
 
@@ -117,14 +119,19 @@ namespace Shoelace.Bejeweld.Views
         
         private void ClearMatches()
         {
-            var matchingTiles = GetMatchingTiles();
-            if (matchingTiles.Length == 0)
+            StartCoroutine(DoClear());
+            
+            IEnumerator DoClear()
             {
-                CurrentState = GridState.Interactable;
-                return;
+                var matchingTiles = GetMatchingTiles();
+                if (matchingTiles.Length == 0)
+                {
+                    CurrentState = GridState.Interactable;
+                    yield break;
+                }
+                yield return StartCoroutine(DestroyAndRemoveTiles(matchingTiles));
+                OnMatchesCleared?.Invoke();
             }
-            DestroyAndRemoveTiles(matchingTiles);
-            OnMatchesCleared?.Invoke();
         }
 
         private void DropTiles()
@@ -138,17 +145,49 @@ namespace Shoelace.Bejeweld.Views
             return MatchFinder.LookForMatches().SelectMany(x => x.Tiles).Distinct().ToArray();
         }
 
-        private void DestroyAndRemoveTiles(Tile[] tiles)
+        private static IEnumerator Blink(Tile[] tiles, TileView[] tileViews)
         {
+            var darkColor = new Color(0.2f, 0.2f, 0.2f);
+            var lightColor = new Color(0.9f, 0.9f, 0.9f);
+            ChangeTilesColor(tiles, tileViews, darkColor);
+            yield return new WaitForSeconds(0.1f);
+            ChangeTilesColor(tiles, tileViews, lightColor);
+            for (var i = 0; i < tiles.Length; i++) tileViews[i].ImageComponent.material = null;
+            yield return new WaitForSeconds(0.1f);
+        }
+        
+        private IEnumerator DestroyAndRemoveTiles(Tile[] tiles)
+        {
+            var tileViews = new TileView[tiles.Length];
             for (var i = 0; i < tiles.Length; i++)
             {
+                var gridPosition = tiles[i].GridPosition;
+                var tileView = _tileViews[gridPosition];
+                tileViews[i] = tileView;
+            }
+            for (var i = 0; i < tiles.Length; i++) tileViews[i].ImageComponent.material = flashingMaterial;
+            yield return StartCoroutine(Blink(tiles, tileViews));
+
+            for (var i = 0; i < tiles.Length; i++)
+            {  
                 var gridPosition = tiles[i].GridPosition;
                 var tileView = _tileViews[gridPosition];
                 _grid.RemoveTile(gridPosition);
                 Destroy(tileView.gameObject);
                 _tileViews[gridPosition] = null;
             }
+            
+            yield return null;
         }
+
+        private static void ChangeTilesColor(Tile[] tiles, TileView[] tileViews, Color imageComponentColor)
+        {
+            for (var i = 0; i < tiles.Length; i++)
+            {
+                tileViews[i].ImageComponent.color = imageComponentColor;
+            }
+        }
+
 
         private void Refill()
         {

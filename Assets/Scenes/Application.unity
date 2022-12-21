@@ -263,6 +263,7 @@ MonoBehaviour:
   tileSpacing: 10
   tileViewFactory: {fileID: 11400000, guid: 2d81f79d238804a5292e8ff81547dbac, type: 2}
   timeToFall: 0.7
+  flashingMaterial: {fileID: 2100000, guid: b0ec135dc15564123bec7fe55418bf95, type: 2}
 --- !u!114 &843596105
 MonoBehaviour:
   m_ObjectHideFlags: 0

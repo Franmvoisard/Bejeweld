@@ -1,11 +1,20 @@
+using System;
 using Shoelace.Bejeweld.Components;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 namespace Shoelace.Bejeweld.Views
 {
     public class TileView : MonoBehaviour, IPointerDownHandler, IPointerEnterHandler
     {
+        public Image ImageComponent { get; private set; }
+
+        private void Awake()
+        {
+            ImageComponent = GetComponent<Image>();
+        }
+
         public Tile Tile { get; private set; }
         
         public void SetTile(Tile tile)
