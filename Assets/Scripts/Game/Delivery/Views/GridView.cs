@@ -28,7 +28,9 @@ namespace Shoelace.Bejeweld.Views
         [SerializeField] private TMP_Text State;
         
         private IGrid _grid;
+        public IGrid Grid => _grid;
         private IMatchFinder _matchFinder;
+        public IMatchFinder MatchFinder => _matchFinder;
         private readonly Dictionary<Vector2Int, TileView> _tileViews = new Dictionary<Vector2Int, TileView>();
         private GridState _currentState;
 
@@ -50,11 +52,17 @@ namespace Shoelace.Bejeweld.Views
         private void Awake()
         {
             TileSwapper.OnSwapFinished += OnSwapFinished;
+            TileSwapper.OnSwapFailed += OnSwapFailed;
             OnRefillComplete += ClearMatches;
             OnMatchesCleared += DropTiles;
             OnTilesDropped += Refill;
         }
-        
+
+        private void OnSwapFailed()
+        {
+            CurrentState = GridState.Interactable;
+        }
+
         private void Start()
         {
             _grid = new Grid(gridSize.x, gridSize.y);
@@ -83,11 +91,6 @@ namespace Shoelace.Bejeweld.Views
 
         private void OnSwapFinished(TileView tileA, TileView tileB)
         {
-            //_tileViews[tileA.Tile.GridPosition] = tileB;
-            //_tileViews[tileB.Tile.GridPosition] = tileA;
-            //Assert.AreEqual(tileB.Tile.GridPosition, _tileViews[tileA.Tile.GridPosition].Tile.GridPosition);
-            //Assert.AreEqual(tileA.Tile.GridPosition, _tileViews[tileB.Tile.GridPosition].Tile.GridPosition);
-
             ClearMatches();
         }
 
@@ -274,6 +277,8 @@ namespace Shoelace.Bejeweld.Views
         {
             TileSwapper.OnSwapFinished -= OnSwapFinished;
         }
+
+        public bool IsAdjacent(TileView tileView, TileView selectedTile) => _grid.AreAdjacent(tileView.Tile, selectedTile.Tile);
     }
 
     public enum GridState

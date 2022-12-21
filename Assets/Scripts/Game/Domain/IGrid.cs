@@ -18,5 +18,6 @@ namespace Shoelace.Bejeweld
         Drop[] DropTiles();
         Vector2Int[] GetEmptyPositions();
         Tile[] PopulateEmptyTiles();
+        bool AreAdjacent(Tile tileViewTile, Tile selectedTileTile);
     }
 }

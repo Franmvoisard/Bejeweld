@@ -13,5 +13,7 @@ namespace Shoelace.Bejeweld.Components
         {
             OnTileSelected?.Invoke(tileView, selectionType);
         }
+
+        public static void EmptySelection() => SelectedTile = null;
     }
 }

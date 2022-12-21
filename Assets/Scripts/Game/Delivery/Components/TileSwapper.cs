@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Linq;
 using Shoelace.Bejeweld.Views;
 using UnityEngine;
 
@@ -11,6 +12,7 @@ namespace Shoelace.Bejeweld.Components
         [SerializeField] private float timeToSwap = 0.25f;
         
         public static event Action<TileView,TileView> OnSwapFinished;
+        public static event Action OnSwapFailed;
 
         private void Awake()
         {
@@ -32,6 +34,11 @@ namespace Shoelace.Bejeweld.Components
             else
             {
                 if (TileSelector.SelectedTile == tileView) return;
+                if (gridView.IsAdjacent(tileView, TileSelector.SelectedTile) == false)
+                {
+                    TileSelector.SelectedTile = tileView;
+                    return;
+                }
                 StartCoroutine(DoSwap(TileSelector.SelectedTile, tileView));
             }
         }
@@ -39,13 +46,39 @@ namespace Shoelace.Bejeweld.Components
         private IEnumerator DoSwap(TileView tileA, TileView tileB)
         {
             gridView.Swap(tileA, tileB);
-            //var auxTile = tileA.Tile;
-            //tileA.SetTile(tileB.Tile);
-            //tileB.SetTile(auxTile);
-            TileSelector.SelectedTile = null;
+            float time = 0;
             var tileAStartPosition = tileA.transform.position;
             var tileBStartPosition = tileB.transform.position;
-            float time = 0;
+
+            if (gridView.MatchFinder.LookForMatches().Any() == false)
+            {
+                gridView.Swap(tileA, tileB);
+                while (time < timeToSwap)
+                {
+                    time += Time.deltaTime;
+                    tileA.transform.position =
+                        Vector3.Lerp(tileAStartPosition, tileBStartPosition, time / timeToSwap);
+                    tileB.transform.position =
+                        Vector3.Lerp(tileBStartPosition, tileAStartPosition, time / timeToSwap);
+                    yield return null;
+                }
+                time = 0f;
+                while (time < timeToSwap)
+                {
+                    time += Time.deltaTime;
+                    tileA.transform.position =
+                        Vector3.Lerp(tileBStartPosition, tileAStartPosition, time  / timeToSwap);
+                    tileB.transform.position =
+                        Vector3.Lerp(tileAStartPosition, tileBStartPosition, time  / timeToSwap);
+                    yield return null;
+                }
+
+                OnSwapFailed?.Invoke();
+                TileSelector.EmptySelection();
+                yield break;
+            }
+
+            TileSelector.EmptySelection();
             
             while (time < timeToSwap)
             {

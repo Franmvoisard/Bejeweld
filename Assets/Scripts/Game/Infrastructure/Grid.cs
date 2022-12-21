@@ -78,7 +78,7 @@ namespace Shoelace.Bejeweld
             }
         }
 
-        private bool AreAdjacent(Tile tileOne, Tile tileTwo)
+        public bool AreAdjacent(Tile tileOne, Tile tileTwo)
         {
             return Math.Abs(Vector2Int.Distance(tileOne.GridPosition, tileTwo.GridPosition) - 1) < 0.00001f;
         }
@@ -130,7 +130,7 @@ namespace Shoelace.Bejeweld
 
             return addedTiles;
         }
-
+        
         public Drop[] DropTiles()
         {
             var movedTiles = new List<Drop>();
