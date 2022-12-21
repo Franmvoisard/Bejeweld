@@ -18,18 +18,18 @@ MonoBehaviour:
     sprite: {fileID: 21300000, guid: 2f32fc6b5258b42b28566bef19042f5a, type: 3}
     tileType: 0
   - prefab: {fileID: 6014428840426335093, guid: 6ce734d1eeac84fe3834c5610cbcf9fb, type: 3}
-    color: {r: 0.98929596, g: 1, b: 0, a: 1}
-    sprite: {fileID: 0}
+    color: {r: 1, g: 1, b: 1, a: 1}
+    sprite: {fileID: 21300000, guid: 077b6287a9cb94ba387b5c4f253929a3, type: 3}
     tileType: 1
   - prefab: {fileID: 6014428840426335093, guid: 6ce734d1eeac84fe3834c5610cbcf9fb, type: 3}
-    color: {r: 0, g: 1, b: 0.07320976, a: 1}
-    sprite: {fileID: 0}
+    color: {r: 1, g: 1, b: 1, a: 1}
+    sprite: {fileID: 21300000, guid: 36893db1a1cd54821b7084cb25406c2d, type: 3}
     tileType: 2
   - prefab: {fileID: 6014428840426335093, guid: 6ce734d1eeac84fe3834c5610cbcf9fb, type: 3}
-    color: {r: 0, g: 0.34919024, b: 1, a: 1}
-    sprite: {fileID: 0}
+    color: {r: 1, g: 1, b: 1, a: 1}
+    sprite: {fileID: 21300000, guid: 52ba3eb316b074e719dbf4495868df30, type: 3}
     tileType: 3
   - prefab: {fileID: 6014428840426335093, guid: 6ce734d1eeac84fe3834c5610cbcf9fb, type: 3}
-    color: {r: 1, g: 0, b: 0.7812414, a: 1}
-    sprite: {fileID: 0}
+    color: {r: 1, g: 1, b: 1, a: 1}
+    sprite: {fileID: 21300000, guid: 8cda453652e4d4839916a39b2c26705a, type: 3}
     tileType: 4

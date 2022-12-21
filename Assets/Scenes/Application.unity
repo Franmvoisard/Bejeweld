@@ -237,12 +237,12 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 2059983256}
-  m_RootOrder: 2
+  m_Father: {fileID: 953487631}
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 80, y: 0}
+  m_AnchoredPosition: {x: 80, y: -21.046}
   m_SizeDelta: {x: 938.131, y: 824.4}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &843596104
@@ -262,7 +262,7 @@ MonoBehaviour:
   tileSize: 100
   tileSpacing: 10
   tileViewFactory: {fileID: 11400000, guid: 2d81f79d238804a5292e8ff81547dbac, type: 2}
-  timeToFall: 0.5
+  timeToFall: 0.7
 --- !u!114 &843596105
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -364,6 +364,7 @@ GameObject:
   - component: {fileID: 953487631}
   - component: {fileID: 953487633}
   - component: {fileID: 953487632}
+  - component: {fileID: 953487634}
   m_Layer: 5
   m_Name: BoardBackground
   m_TagString: Untagged
@@ -382,7 +383,8 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 843596103}
   m_Father: {fileID: 2059983256}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -429,6 +431,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 953487630}
   m_CullTransparentMesh: 1
+--- !u!114 &953487634
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 953487630}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3312d7739989d2b4e91e6319e9a96d76, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Padding: {x: 0, y: 0, z: 0, w: 0}
+  m_Softness: {x: 25, y: 25}
 --- !u!1 &1556256176
 GameObject:
   m_ObjectHideFlags: 0
@@ -591,7 +607,6 @@ RectTransform:
   m_Children:
   - {fileID: 913106406}
   - {fileID: 953487631}
-  - {fileID: 843596103}
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

@@ -2,17 +2,15 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Shoelace.Bejeweld.Components;
 using Shoelace.Bejeweld.Factories;
-using TMPro;
 using UnityEngine;
-using UnityEngine.Assertions;
 using UnityEngine.UIElements.Experimental;
+using Random = UnityEngine.Random;
 
 namespace Shoelace.Bejeweld.Views
 {
-    public partial class GridView : MonoBehaviour
+    public class GridView : MonoBehaviour
     {
         [Header("Grid Settings")]
         [SerializeField] private Transform tileParent;
@@ -57,9 +55,26 @@ namespace Shoelace.Bejeweld.Views
             _grid = new Grid(gridSize.x, gridSize.y);
             MatchFinder = new MatchFinder(_grid);
             _grid.PopulateWithRandomTiles();
+            EnsureGridContainsNoMatches();
             CreateLayout();
         }
 
+        private void EnsureGridContainsNoMatches()
+        {
+            var matchingTiles = GetMatchingTiles();
+            while (matchingTiles.Length > 0)
+            {
+                var matchesPositions = matchingTiles.Select(x => x.GridPosition);
+                foreach (var matches in matchesPositions)
+                {
+                    _grid.RemoveTile(matches);
+                    _grid.AddTile(new Tile(matches.x, matches.y, Random.Range(0, 5)));
+                }
+
+                matchingTiles = GetMatchingTiles();
+            }
+        }
+        
         private void OnSwapFinished(TileView tileA, TileView tileB)
         {
             ClearMatches();
@@ -138,26 +153,45 @@ namespace Shoelace.Bejeweld.Views
         private void Refill()
         {
             var tiles = _grid.PopulateEmptyTiles();
-            var tilePositions = tiles
-                .Select(tile => tile.GridPosition)
-                .GroupBy(x => x.x)
-                .Select(x => x.OrderByDescending(x => x.y).ThenBy(x => x.x).ToArray())
-                .ToArray();
+            var tilePositions = GetTilesPositions(tiles);
+            
             var refillData = new RefillData[tiles.Length];
+            CreateNewTiles(tilePositions, refillData);
+            StartCoroutine(RefillDrop(refillData));
+        }
+
+        private void CreateNewTiles(Vector2Int[][] tilePositions, RefillData[] refillData)
+        {
             var iterator = 0;
             for (var i = 0; i < tilePositions.Length; i++)
             {
                 for (var j = 0; j < tilePositions[i].Length; j++)
                 {
-                    var tilePos = tilePositions[i][j];
-                    var tileView = InstantiateTileView(tilePos.x, tilePos.y, out var rectTransform);
-                    _tileViews[tilePos] = tileView;
-                    rectTransform.anchoredPosition = CalculateTilePosition(tilePos.x, -1 - j);
-                    refillData[iterator] = new RefillData(rectTransform, CalculateTilePosition(tilePos.x, tilePos.y));
+                    var currentTilePosition = tilePositions[i][j];
+                    var tileView = InstantiateTileView(currentTilePosition.x, currentTilePosition.y, out var rectTransform);
+                    _tileViews[currentTilePosition] = tileView;
+                    rectTransform.anchoredPosition = CalculateTilePosition(currentTilePosition.x, -1 - j);
+                    refillData[iterator] = new RefillData(rectTransform, CalculateTilePosition(currentTilePosition.x, currentTilePosition.y));
                     iterator++;
                 }
             }
-            StartCoroutine(RefillDrop(refillData));
+        }
+
+        private static Vector2Int[][] GetTilesPositions(Tile[] tiles)
+        {
+            return tiles
+                .Select(tile => tile.GridPosition)
+                .GroupBy(x => x.x)
+                .Select(SortByYThenX())
+                .ToArray();
+        }
+
+        private static Func<IGrouping<int, Vector2Int>, Vector2Int[]> SortByYThenX()
+        {
+            return group => group
+                .OrderByDescending(x => x.y)
+                .ThenBy(x => x.x)
+                .ToArray();
         }
 
         private IEnumerator RefillDrop(RefillData[] refillData)
@@ -169,7 +203,7 @@ namespace Shoelace.Bejeweld.Views
                 var finalPositions = refillData.Select(drop => drop.FinalPosition).ToArray();
                 var viewTransforms = refillData.Select(drop => drop.Transform).ToArray();
                 
-                var easedTime = Easing.OutBounce(time / timeToFall);
+                var easedTime = Easing.InOutCubic(time / timeToFall);
                 for (var i = 0; i < refillData.Length; i++)
                 {
                     viewTransforms[i].anchoredPosition = Vector2.Lerp(viewTransforms[i].anchoredPosition, finalPositions[i], easedTime);
