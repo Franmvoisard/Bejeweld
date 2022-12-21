@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   tileViewSettings:
   - prefab: {fileID: 6014428840426335093, guid: 6ce734d1eeac84fe3834c5610cbcf9fb, type: 3}
-    color: {r: 1, g: 0, b: 0, a: 1}
-    sprite: {fileID: 0}
+    color: {r: 1, g: 1, b: 1, a: 1}
+    sprite: {fileID: 21300000, guid: 2f32fc6b5258b42b28566bef19042f5a, type: 3}
     tileType: 0
   - prefab: {fileID: 6014428840426335093, guid: 6ce734d1eeac84fe3834c5610cbcf9fb, type: 3}
     color: {r: 0.98929596, g: 1, b: 0, a: 1}

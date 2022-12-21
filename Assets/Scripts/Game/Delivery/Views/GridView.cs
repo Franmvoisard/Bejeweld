@@ -12,7 +12,7 @@ using UnityEngine.UIElements.Experimental;
 
 namespace Shoelace.Bejeweld.Views
 {
-    public class GridView : MonoBehaviour
+    public partial class GridView : MonoBehaviour
     {
         [Header("Grid Settings")]
         [SerializeField] private Transform tileParent;
@@ -24,32 +24,21 @@ namespace Shoelace.Bejeweld.Views
         [SerializeField] private AbstractTileViewFactory tileViewFactory;
         [SerializeField] private float timeToFall = 0.5f;
 
-        [Header("Debug")] 
-        [SerializeField] private TMP_Text State;
-        
         private IGrid _grid;
-        public IGrid Grid => _grid;
-        private IMatchFinder _matchFinder;
-        public IMatchFinder MatchFinder => _matchFinder;
-        private readonly Dictionary<Vector2Int, TileView> _tileViews = new Dictionary<Vector2Int, TileView>();
-        private GridState _currentState;
+        private readonly Dictionary<Vector2Int, TileView> _tileViews = new();
 
-        public GridState CurrentState
-        {
-            get => _currentState;
-            set
-            {
-                State.text = value.ToString();
-                _currentState = value;
-            }
-        }
-
-        public static event Action<RefillData[]> OnRefill;
-        public static event Action OnMatchesCleared;
-        public static event Action OnRefillComplete;
-        public static event Action OnTilesDropped;
+        public IMatchFinder MatchFinder { get; private set; }
+        public GridState CurrentState { get; private set; }
+        private static event Action OnMatchesCleared;
+        private static event Action OnRefillComplete;
+        private static event Action OnTilesDropped;
 
         private void Awake()
+        {
+            ListenToEvents();
+        }
+
+        private void ListenToEvents()
         {
             TileSwapper.OnSwapFinished += OnSwapFinished;
             TileSwapper.OnSwapFailed += OnSwapFailed;
@@ -66,27 +55,9 @@ namespace Shoelace.Bejeweld.Views
         private void Start()
         {
             _grid = new Grid(gridSize.x, gridSize.y);
-            _matchFinder = new MatchFinder(_grid);
+            MatchFinder = new MatchFinder(_grid);
             _grid.PopulateWithRandomTiles();
             CreateLayout();
-        }
-
-        public void LogTileState()
-        {
-            StringBuilder str = new StringBuilder();
-
-            foreach (var views in _tileViews.Where(x=>x.Value == null))
-            {
-                str.Append(views.Key);
-                str.Append(" |");
-            }
-            str.AppendLine();
-            foreach (var mismatchedTiles in _tileViews.Where(tile => tile.Value != null).Where(x => x.Key != x.Value.Tile.GridPosition))
-            {
-                str.Append("Key: " + mismatchedTiles.Key + " contains tile" + mismatchedTiles.Value.Tile.GridPosition);
-            }
-            Debug.Log(str.ToString());
-
         }
 
         private void OnSwapFinished(TileView tileA, TileView tileB)
@@ -123,9 +94,8 @@ namespace Shoelace.Bejeweld.Views
         public void Swap(TileView tileA, TileView tileB)
         {
             CurrentState = GridState.Swapping;
-            var aux = tileA;
             _tileViews[tileA.Tile.GridPosition] = tileB;
-            _tileViews[tileB.Tile.GridPosition] = aux;
+            _tileViews[tileB.Tile.GridPosition] = tileA;
 
             _grid.SwapTiles(tileA.Tile, tileB.Tile);
         }
@@ -139,22 +109,18 @@ namespace Shoelace.Bejeweld.Views
                 return;
             }
             DestroyAndRemoveTiles(matchingTiles);
-            Debug.Log("Cleared Matches");
-            LogTileState();
             OnMatchesCleared?.Invoke();
         }
 
         private void DropTiles()
         {
             var displacedTiles = _grid.DropTiles();
-            Debug.Log("Displaced Tiles");
-            LogTileState();
             StartCoroutine(DropTiles(displacedTiles));
         }
 
         private Tile[] GetMatchingTiles()
         {
-            return _matchFinder.LookForMatches().SelectMany(x => x.Tiles).Distinct().ToArray();
+            return MatchFinder.LookForMatches().SelectMany(x => x.Tiles).Distinct().ToArray();
         }
 
         private void DestroyAndRemoveTiles(Tile[] tiles)
@@ -179,44 +145,19 @@ namespace Shoelace.Bejeweld.Views
                 .ToArray();
             var refillData = new RefillData[tiles.Length];
             var iterator = 0;
-            StringBuilder str = new StringBuilder();
-            str.Append("Added tile: ");
             for (var i = 0; i < tilePositions.Length; i++)
             {
                 for (var j = 0; j < tilePositions[i].Length; j++)
                 {
                     var tilePos = tilePositions[i][j];
-                    Debug.Log("TilePos: " + tilePos);
                     var tileView = InstantiateTileView(tilePos.x, tilePos.y, out var rectTransform);
                     _tileViews[tilePos] = tileView;
-                    str.Append(tilePos);
                     rectTransform.anchoredPosition = CalculateTilePosition(tilePos.x, -1 - j);
                     refillData[iterator] = new RefillData(rectTransform, CalculateTilePosition(tilePos.x, tilePos.y));
                     iterator++;
                 }
             }
-
-            foreach (var tile in _tileViews)
-            {
-                Assert.IsNotNull(tile.Value, $"Key {tile.Key.ToString()} contains a null value");
-            }
-            Debug.Log(str.ToString());
-            LogTileState();
             StartCoroutine(RefillDrop(refillData));
-            Debug.Log("Refilled Tiles");
-            OnRefill?.Invoke(refillData);
-        }
-
-        public struct RefillData
-        {
-            public RectTransform Transform;
-            public Vector2 FinalPosition;
-
-            public RefillData(RectTransform transform, Vector2 finalPosition)
-            {
-                Transform = transform;
-                FinalPosition = finalPosition;
-            }
         }
 
         private IEnumerator RefillDrop(RefillData[] refillData)
@@ -226,10 +167,9 @@ namespace Shoelace.Bejeweld.Views
             {
                 time += Time.deltaTime;
                 var finalPositions = refillData.Select(drop => drop.FinalPosition).ToArray();
-                var viewTransforms = refillData.Select(drop => drop.Transform)
-                    .ToArray();
+                var viewTransforms = refillData.Select(drop => drop.Transform).ToArray();
                 
-                var easedTime = Easing.InQuad(time / timeToFall);
+                var easedTime = Easing.OutBounce(time / timeToFall);
                 for (var i = 0; i < refillData.Length; i++)
                 {
                     viewTransforms[i].anchoredPosition = Vector2.Lerp(viewTransforms[i].anchoredPosition, finalPositions[i], easedTime);
@@ -237,24 +177,16 @@ namespace Shoelace.Bejeweld.Views
              
                 yield return new WaitForEndOfFrame();
             }
-            Debug.Log("Refilled Tiles Completed");
-            LogTileState();
             OnRefillComplete?.Invoke();
         }
 
         private IEnumerator DropTiles(Drop[] drops)
         {
             var time = 0f;
-            var finalPositions = drops.Select(drop => CalculateTilePosition(drop.NewPosition.x, drop.NewPosition.y)).ToArray();
-            var viewTransforms = drops.Select(drop => _tileViews[drop.PreviousPosition])
-                .Select(x => x.GetComponent<RectTransform>())
-                .ToArray();
+            var finalPositions = CalculateFinalPositions(drops);
+            var viewTransforms = GetViewRectTransforms(drops);
+            UpdateDroppedTilesGridPosition(drops);
             
-            for (int i = 0; i < drops.Length; i++)
-            {
-                _tileViews[drops[i].NewPosition] = _tileViews[drops[i].PreviousPosition];
-                _tileViews[drops[i].PreviousPosition] = null;
-            }
             while (time < timeToFall)
             {
                 time += Time.deltaTime;
@@ -268,14 +200,43 @@ namespace Shoelace.Bejeweld.Views
                 yield return null;
             }
 
-            Debug.Log("Dropped Tiles");
-            LogTileState();
             OnTilesDropped?.Invoke();
         }
 
+        private void UpdateDroppedTilesGridPosition(Drop[] drops)
+        {
+            for (var i = 0; i < drops.Length; i++)
+            {
+                _tileViews[drops[i].NewPosition] = _tileViews[drops[i].PreviousPosition];
+                _tileViews[drops[i].PreviousPosition] = null;
+            }
+        }
+
+        private RectTransform[] GetViewRectTransforms(Drop[] drops)
+        {
+            return drops.Select(drop => _tileViews[drop.PreviousPosition])
+                .Select(x => x.GetComponent<RectTransform>())
+                .ToArray();
+        }
+
+        private Vector2[] CalculateFinalPositions(Drop[] drops)
+        {
+            return drops.Select(drop => CalculateTilePosition(drop.NewPosition.x, drop.NewPosition.y)).ToArray();
+        }
+
+
         private void OnDestroy()
         {
+            UnsubscribeFromEvents();
+        }
+
+        private void UnsubscribeFromEvents()
+        {
             TileSwapper.OnSwapFinished -= OnSwapFinished;
+            TileSwapper.OnSwapFailed -= OnSwapFailed;
+            OnRefillComplete -= ClearMatches;
+            OnMatchesCleared -= DropTiles;
+            OnTilesDropped -= Refill;
         }
 
         public bool IsAdjacent(TileView tileView, TileView selectedTile) => _grid.AreAdjacent(tileView.Tile, selectedTile.Tile);
@@ -284,8 +245,6 @@ namespace Shoelace.Bejeweld.Views
     public enum GridState
     {
         Interactable,
-        Swapping,
-        Chaining,
-        Filling
+        Swapping
     }
 }
