@@ -262,7 +262,7 @@ namespace Shoelace.Bejeweld.Views
                     viewTransforms[i].anchoredPosition = Vector2.Lerp(viewTransforms[i].anchoredPosition, finalPositions[i], easedTime);
                 }
              
-                yield return new WaitForEndOfFrame();
+                yield return null;
             }
             OnRefillComplete?.Invoke();
         }
