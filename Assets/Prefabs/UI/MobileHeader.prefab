@@ -700,8 +700,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f165f136a72c40469fdc352e36ae1a99, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  scoreText: {fileID: 8119496276082430107}
-  levelText: {fileID: 8119496275827439390}
+  scoreText: {fileID: 8119496275827439390}
+  levelText: {fileID: 8119496276082430107}
   progressBar: {fileID: 8119496276838844332}
   maxScale: {x: 1.5, y: 1.5, z: 1.5}
   upTextDuration: 0.15
