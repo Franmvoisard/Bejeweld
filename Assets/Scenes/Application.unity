@@ -1194,7 +1194,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   levels:
-  - goal: 300
+  - goal: 2000
     levelId: 1
   webGLHud: {fileID: 5960906429136240688, guid: 7efd9294330e54911b78d563829e2a27, type: 3}
   mobileHUDView: {fileID: 8119496277220362668, guid: ec0a34e4293bb4c5c9b4cfb820eb6489, type: 3}
