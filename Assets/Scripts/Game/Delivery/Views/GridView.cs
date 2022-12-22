@@ -5,7 +5,6 @@ using System.Linq;
 using Shoelace.Bejeweld.Components;
 using Shoelace.Bejeweld.Factories;
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.UIElements.Experimental;
 using Random = UnityEngine.Random;
 
@@ -29,9 +28,11 @@ namespace Shoelace.Bejeweld.Views
 
         public IMatchFinder MatchFinder { get; private set; }
         public GridState CurrentState { get; private set; }
-        private static event Action OnMatchesCleared;
-        private static event Action OnRefillComplete;
-        private static event Action OnTilesDropped;
+        public static event Action OnMatchesCleared;
+        public static event Action OnRefillComplete;
+        public static event Action OnTilesDropped;
+        public static event Action OnChainFinished;
+
 
         private void Awake()
         {
@@ -127,6 +128,7 @@ namespace Shoelace.Bejeweld.Views
                 if (matchingTiles.Length == 0)
                 {
                     CurrentState = GridState.Interactable;
+                    OnChainFinished?.Invoke();
                     yield break;
                 }
                 yield return StartCoroutine(DestroyAndRemoveTiles(matchingTiles));
@@ -188,7 +190,6 @@ namespace Shoelace.Bejeweld.Views
             }
         }
 
-
         private void Refill()
         {
             var tiles = _grid.PopulateEmptyTiles();
@@ -242,7 +243,7 @@ namespace Shoelace.Bejeweld.Views
                 var finalPositions = refillData.Select(drop => drop.FinalPosition).ToArray();
                 var viewTransforms = refillData.Select(drop => drop.Transform).ToArray();
                 
-                var easedTime = Easing.InOutCubic(time / timeToFall);
+                var easedTime = Easing.OutQuad(time / timeToFall);
                 for (var i = 0; i < refillData.Length; i++)
                 {
                     viewTransforms[i].anchoredPosition = Vector2.Lerp(viewTransforms[i].anchoredPosition, finalPositions[i], easedTime);
@@ -264,7 +265,7 @@ namespace Shoelace.Bejeweld.Views
             {
                 time += Time.deltaTime;
                 
-                var easedTime = Easing.InQuad(time / timeToFall);
+                var easedTime = Easing.OutQuad(time / timeToFall);
                 for (var i = 0; i < drops.Length; i++)
                 {
                     viewTransforms[i].anchoredPosition = Vector2.Lerp(viewTransforms[i].anchoredPosition, finalPositions[i], easedTime);
@@ -296,8 +297,7 @@ namespace Shoelace.Bejeweld.Views
         {
             return drops.Select(drop => CalculateTilePosition(drop.NewPosition.x, drop.NewPosition.y)).ToArray();
         }
-
-
+        
         private void OnDestroy()
         {
             UnsubscribeFromEvents();
