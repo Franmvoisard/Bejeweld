@@ -27,6 +27,7 @@ namespace Shoelace.Bejeweld.Components
         private bool gameCompleted = false;
         private void Awake()
         {
+            Application.targetFrameRate = 60;
             InstantiateHudForPlatform();
             _currentLevel = GetCurrentLevel();
             LoadLevel(_currentLevel);
