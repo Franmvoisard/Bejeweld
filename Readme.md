@@ -39,8 +39,8 @@ I will be available and happy to answer any question you have.
 
 This game can be played both on Desktop (WebGL) and Mobile(Android and iOS).
 
-<img src =".readme-resources/preview-webgl.png" height="400px" align:center></img>
-<img src =".readme-resources/preview-mobile.png" height="400px" align:center></img>
+<img src =".readme-resources/preview-webgl.png" height="300px" align:center></img>
+<img src =".readme-resources/preview-mobile.png" height="300px" align:center></img>
 
 ## Third Parties 
 
