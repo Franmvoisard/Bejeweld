@@ -326,6 +326,7 @@ namespace Shoelace.Bejeweld.Views
         }
 
         public bool IsAdjacent(TileView tileView, TileView selectedTile) => _grid.AreAdjacent(tileView.Tile, selectedTile.Tile);
+        
     }
 
     public enum GridState

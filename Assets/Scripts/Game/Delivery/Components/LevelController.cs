@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Shoelace.Bejeweld.Views;
@@ -15,16 +16,21 @@ namespace Shoelace.Bejeweld.Components
         [SerializeField] private Transform hudParent;
 
         [SerializeField] private int scorePerTile;
+        [SerializeField] private WinPopup winPopup;
         
         private ILevelHudView _levelHudView;
         private int _currentScore;
         private Level _currentLevel;
 
+        public static event Action GameCompleted;
+
+        private bool gameCompleted = false;
         private void Awake()
         {
             InstantiateHudForPlatform();
             _currentLevel = GetCurrentLevel();
             LoadLevel(_currentLevel);
+            TileSelector.EnableSelection();
             GridView.OnMatchesCleared += SumPoints;
         }
 
@@ -37,6 +43,7 @@ namespace Shoelace.Bejeweld.Components
 
         private void CheckVictory()
         {
+            if (gameCompleted) return;
             if (_currentScore >= _currentLevel.goal)
             {
                 Win();
@@ -45,7 +52,10 @@ namespace Shoelace.Bejeweld.Components
 
         private void Win()
         {
-            throw new System.NotImplementedException();
+            Instantiate(winPopup, hudParent);
+            gameCompleted = true;
+            TileSelector.Disable();
+            GameCompleted?.Invoke();
         }
 
         public Level GetCurrentLevel()
@@ -84,6 +94,12 @@ namespace Shoelace.Bejeweld.Components
         private void InstantiateMobileHUD()
         {
             _levelHudView = Instantiate(mobileHUDView, hudParent);
+        }
+
+        private void OnDestroy()
+        {
+            GridView.OnMatchesCleared -= SumPoints;
+
         }
 
         public void LoadLevel(Level level)

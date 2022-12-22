@@ -1194,12 +1194,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   levels:
-  - goal: 3000
+  - goal: 300
     levelId: 1
   webGLHud: {fileID: 5960906429136240688, guid: 7efd9294330e54911b78d563829e2a27, type: 3}
   mobileHUDView: {fileID: 8119496277220362668, guid: ec0a34e4293bb4c5c9b4cfb820eb6489, type: 3}
   hudParent: {fileID: 2059983256}
   scorePerTile: 35
+  winPopup: {fileID: 4836562569447153750, guid: ddd2534a640334531a368834aca5444a, type: 3}
 --- !u!4 &2118335390
 Transform:
   m_ObjectHideFlags: 0

@@ -1,10 +1,11 @@
 using System;
 using System.Collections;
+using Shoelace.Bejeweld.Components;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Shoelace.Bejeweld.Components
+namespace Shoelace.Bejeweld.Views
 {
     public class LevelHUDView : MonoBehaviour, ILevelHudView
     {
@@ -57,11 +58,6 @@ namespace Shoelace.Bejeweld.Components
         }
     }
 
-    public interface ILevelHudView
-    {
-        public void UpdateProgress(int score);
-        void SetLevel(Level level);
-    }
 }
 
 [Serializable]

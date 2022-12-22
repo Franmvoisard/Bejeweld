@@ -43,6 +43,11 @@ namespace Shoelace.Bejeweld.Components
             }
         }
 
+        private void OnDestroy()
+        {
+            TileSelector.OnTileSelected -= OnTileSelected;
+        }
+
         private IEnumerator DoSwap(TileView tileA, TileView tileB)
         {
             gridView.Swap(tileA, tileB);
