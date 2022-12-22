@@ -61,7 +61,7 @@ public class BoardShake : MonoBehaviour
         _chainCount = 0;
     }
 
-    private void OnMatchCleared()
+    private void OnMatchCleared(int _)
     {
         _chainCount += 1;
         if (_chainCount > minChainLengthForShake)

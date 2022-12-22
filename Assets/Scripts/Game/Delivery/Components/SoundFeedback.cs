@@ -20,7 +20,7 @@ public class SoundFeedback : MonoBehaviour
         GridView.OnRefillComplete += PlayFillSound;
     }
 
-    private void PlayMatchSound()
+    private void PlayMatchSound(int _)
     {
         AudioController.PlaySound(matchSound, 1 + _chainCount * 0.06f);
         _chainCount++;

@@ -28,7 +28,7 @@ namespace Shoelace.Bejeweld.Views
 
         public IMatchFinder MatchFinder { get; private set; }
         public GridState CurrentState { get; private set; }
-        public static event Action OnMatchesCleared;
+        public static event Action<int> OnMatchesCleared;
         public static event Action OnRefillComplete;
         public static event Action OnTilesDropped;
         public static event Action OnChainFinished;
@@ -132,11 +132,11 @@ namespace Shoelace.Bejeweld.Views
                     yield break;
                 }
                 yield return StartCoroutine(DestroyAndRemoveTiles(matchingTiles));
-                OnMatchesCleared?.Invoke();
+                OnMatchesCleared?.Invoke(matchingTiles.Length);
             }
         }
 
-        private void DropTiles()
+        private void DropTiles(int _)
         {
             var displacedTiles = _grid.DropTiles();
             StartCoroutine(DropTiles(displacedTiles));
