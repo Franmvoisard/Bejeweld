@@ -117,6 +117,9 @@ MonoBehaviour:
   scoreText: {fileID: 3175469800257046319}
   levelText: {fileID: 3175469798964288467}
   progressBar: {fileID: 3175469799053255483}
+  maxScale: {x: 1.5, y: 1.5, z: 1.5}
+  upTextDuration: 0.15
+  downTextDuration: 0.3
 --- !u!1 &3175469798404257455
 GameObject:
   m_ObjectHideFlags: 0
