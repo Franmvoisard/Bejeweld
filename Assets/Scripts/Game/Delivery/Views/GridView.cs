@@ -151,13 +151,26 @@ namespace Shoelace.Bejeweld.Views
         {
             var darkColor = new Color(0.2f, 0.2f, 0.2f);
             var lightColor = new Color(0.9f, 0.9f, 0.9f);
+            yield return ChangeTilesSize(tiles, tileViews, 0.1f);
             ChangeTilesColor(tiles, tileViews, darkColor);
             yield return new WaitForSeconds(0.1f);
             ChangeTilesColor(tiles, tileViews, lightColor);
             for (var i = 0; i < tiles.Length; i++) tileViews[i].ImageComponent.material = null;
             yield return new WaitForSeconds(0.1f);
         }
-        
+
+        private static IEnumerator ChangeTilesSize(Tile[] tiles, TileView[] tileViews, float duration)
+        {
+            float time = 0;
+            while (time < duration)
+            {
+                time += Time.deltaTime;
+                for (var i = 0; i < tiles.Length; i++)
+                    tileViews[i].transform.localScale = Vector3.Lerp(Vector3.one, new Vector3(1.3f, 1.3f, 1.3f), time / duration);
+                yield return null;
+            }
+        }
+
         private IEnumerator DestroyAndRemoveTiles(Tile[] tiles)
         {
             var tileViews = new TileView[tiles.Length];
