@@ -80,7 +80,7 @@ namespace Shoelace.Bejeweld.Components
 
         private void InstantiateHudForPlatform()
         {
-#if UNITY_WEBGL
+#if UNITY_WEBGL || UNITY_STANDALONE
             InstantiateWebGLHud();
 #elif UNITY_IOS || UNITY_ANDROID
             InstantiateMobileHUD();
